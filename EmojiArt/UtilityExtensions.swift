@@ -9,9 +9,21 @@ import SwiftUI
 
 extension Collection where Element: Identifiable {
     func index(matching element: Element) -> Self.Index? {
-        firstIndex(where: {$0.id == element.id})
+        firstIndex(where: { $0.id == element.id })
     }
 }
+
+// we could do the same thing when it comes to removing an element
+// but we have to add that to a different protocol
+// because Collection works for immutable collections of things
+// the "mutable" one is RangeReplaceableCollection
+// not only could we add remove
+// but we could add a subscript which takes a copy of one of the elements
+// and uses its Identifiable-ness to subscript into the Collection
+// this is an awesome way to create Bindings into an Array in a ViewModel
+// (since any Published var in an ObservableObject can be bound to via $)
+// (even vars on that Published var or subscripts on that var)
+// (or subscripts on vars on that var, etc.)
 
 extension RangeReplaceableCollection where Element: Identifiable {
     mutating func remove(_ element: Element) {
@@ -19,7 +31,7 @@ extension RangeReplaceableCollection where Element: Identifiable {
             remove(at: index)
         }
     }
-    
+
     subscript(_ element: Element) -> Element {
         get {
             if let index = index(matching: element) {
@@ -36,6 +48,9 @@ extension RangeReplaceableCollection where Element: Identifiable {
     }
 }
 
+// if you use a Set to represent the selection of emoji in HW5
+// then you might find this syntactic sugar function to be of use
+
 extension Set where Element: Identifiable {
     mutating func toggleMembership(of element: Element) {
         if let index = index(matching: element) {
@@ -46,15 +61,20 @@ extension Set where Element: Identifiable {
     }
 }
 
+// some extensions to String and Character
+// to help us with managing our Strings of emojis
+// we want them to be "emoji only"
+// (thus isEmoji below)
+// and we don't want them to have repeated emojis
+// (thus withoutDuplicateCharacters below)
+
 extension String {
-    var withNoRepeatedCharacters: String {
-        var uniqued = ""
-        for ch in self {
-            if !uniqued.contains(ch) {
-                uniqued.append(ch)
+    var removingDuplicateCharacters: String {
+        reduce(into: "") { sofar, element in
+            if !sofar.contains(element) {
+                sofar.append(element)
             }
         }
-        return uniqued
     }
 }
 
