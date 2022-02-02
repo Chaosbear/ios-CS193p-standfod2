@@ -7,8 +7,6 @@
 
 import SwiftUI
 
-// L11 a simple, persistent storage place for Palettes
-
 struct Palette: Identifiable, Codable, Hashable {
     var name: String
     var emojis: String

@@ -7,8 +7,6 @@
 
 import SwiftUI
 
-// L12 a View which edits the info in a bound-to Palette
-
 struct PaletteEditor: View {
     @Binding var palette: Palette
     
