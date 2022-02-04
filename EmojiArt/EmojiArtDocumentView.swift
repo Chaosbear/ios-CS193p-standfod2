@@ -14,8 +14,35 @@ struct EmojiArtDocumentView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            documentBody
+            ZStack(alignment: .topLeading) {
+                documentBody
+                conditionalDeleteEmojiButton
+                    .padding(.vertical)
+                    .transition(.opacity)
+            }
             palette
+        }
+    }
+    
+    @ViewBuilder
+    private var conditionalDeleteEmojiButton: some View {
+        if !selectedEmojis.isEmpty {
+            Button {
+                withAnimation {
+                    for emoji in selectedEmojis {
+                        document.removeEmoji(emoji)
+                    }
+                    selectedEmojis.removeAll()
+                }
+            } label: {
+                Label("Delete Selected Emoji", systemImage: "trash")
+                    .font(.title2.bold())
+                    .foregroundColor(.white)
+                    .padding(10)
+                    .background(RoundedRectangle(cornerRadius: 10))
+                    .foregroundColor(.orange)
+            }
+            .padding(.horizontal)
         }
     }
     
@@ -27,15 +54,24 @@ struct EmojiArtDocumentView: View {
                         .scaleEffect(zoomScale)
                         .position(convertFromEmojiCoordinates((0,0), in: geometry))
                 )
-                .gesture(doubleTapToZoom(in: geometry.size))
+                    .gesture(doubleTapToZoom(in: geometry.size).exclusively(before: deselectAllEmojisWithSingleTap()))
                 if document.backgroundImageFetchStatus == .fetching {
                     ProgressView().scaleEffect(2)
                 } else {
                     ForEach(document.emojis) { emoji in
                         Text(emoji.text)
+                            .border(Color.blue, width: selectedEmojis.containsMatching(emoji) ? 4 : 0)
                             .font(.system(size: fontSize(for: emoji)))
+                            .scaleEffect(scale(for: emoji))
                             .scaleEffect(zoomScale)
                             .position(position(for: emoji, in: geometry))
+                            .offset(selectedEmojis.containsMatching(emoji) ? gestureEmojiPanOffset : .zero)
+                            .onTapGesture {
+                                withAnimation{
+                                    selectedEmojis.toggleMatching(emoji)
+                                }
+                            }
+                            .gesture(panGesture(for: emoji))
                     }
                 }
             }
@@ -46,6 +82,18 @@ struct EmojiArtDocumentView: View {
             .gesture(panGesture().simultaneously(with: zoomGesture()))
         }
     }
+    
+    @State private var selectedEmojis = Set<EmojiArtModel.Emoji>()
+    
+    private func deselectAllEmojisWithSingleTap() -> some Gesture {
+        TapGesture()
+            .onEnded{
+                withAnimation {
+                    selectedEmojis.removeAll()
+                }
+            }
+    }
+    
     
     // MARK: - Drag and Drop
     
@@ -105,18 +153,37 @@ struct EmojiArtDocumentView: View {
     
     @State private var steadyStateZoomScale: CGFloat = 1
     @GestureState private var gestureZoomScale: CGFloat = 1
+    @GestureState private var gestureEmojiZoomScale: CGFloat = 1
     
     private var zoomScale: CGFloat {
         steadyStateZoomScale * gestureZoomScale
     }
     
+    private func scale(for emoji: EmojiArtModel.Emoji) -> CGFloat {
+        selectedEmojis.containsMatching(emoji) ? (zoomScale * gestureEmojiZoomScale) : zoomScale
+    }
+    
     private func zoomGesture() -> some Gesture {
         MagnificationGesture()
             .updating($gestureZoomScale) { latestGestureScale, gestureZoomScale, _ in
-                gestureZoomScale = latestGestureScale
+                if selectedEmojis.isEmpty {
+                    gestureZoomScale = latestGestureScale
+                }
+            }
+            .updating($gestureEmojiZoomScale) { latestEmojiGestureScale, gestureEmojiZoomScale, _ in
+                if !selectedEmojis.isEmpty {
+                    gestureEmojiZoomScale = latestEmojiGestureScale
+                }
+                
             }
             .onEnded { gestureScaleAtEnd in
-                steadyStateZoomScale *= gestureScaleAtEnd
+                if selectedEmojis.isEmpty {
+                    steadyStateZoomScale *= gestureScaleAtEnd
+                } else {
+                    for emoji in selectedEmojis {
+                        document.scaleEmoji(emoji, by: gestureScaleAtEnd)
+                    }
+                }
             }
     }
     
@@ -142,19 +209,33 @@ struct EmojiArtDocumentView: View {
     
     @State private var steadyStatePanOffset: CGSize = CGSize.zero
     @GestureState private var gesturePanOffset: CGSize = CGSize.zero
+    @GestureState private var gestureEmojiPanOffset: CGSize = CGSize.zero
     
     private var panOffset: CGSize {
         (steadyStatePanOffset + gesturePanOffset) * zoomScale
     }
     
-    private func panGesture() -> some Gesture {
-        DragGesture()
-            .updating($gesturePanOffset) { latestDragGestureValue, gesturePanOffset, _ in
-                gesturePanOffset = latestDragGestureValue.translation / zoomScale
-            }
-            .onEnded { finalDragGestureValue in
-                steadyStatePanOffset = steadyStatePanOffset + (finalDragGestureValue.translation / zoomScale)
-            }
+    private func panGesture(for emoji: EmojiArtModel.Emoji? = nil) -> some Gesture {
+        if let emoji = emoji, selectedEmojis.containsMatching(emoji) {
+            return DragGesture()
+                .updating($gestureEmojiPanOffset) { latestDragValue, gestureEmojiPanOffset, _ in
+                    gestureEmojiPanOffset = latestDragValue.translation
+                }
+                .onEnded{ finalDragValue in
+                    for emoji in selectedEmojis {
+                        document.moveEmoji(emoji, by: finalDragValue.translation / zoomScale)
+                    }
+                }
+        } else {
+            return DragGesture()
+                .updating($gesturePanOffset) { latestDragGestureValue, gesturePanOffset, _ in
+                    gesturePanOffset = latestDragGestureValue.translation / zoomScale
+                }
+                .onEnded { finalDragGestureValue in
+                    steadyStatePanOffset = steadyStatePanOffset + (finalDragGestureValue.translation / zoomScale)
+                }
+        }
+        
     }
 
     // MARK: - Palette
