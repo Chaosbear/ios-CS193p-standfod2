@@ -79,7 +79,7 @@ struct EmojiArtDocumentView: View {
                     }
                 }
                 if PhotoLibrary.isAvailable {
-                    AnimatedActionButton(title: "Search Photo", systemImage: "camera") {
+                    AnimatedActionButton(title: "Search Photo", systemImage: "photo") {
                         backgroundPicker = .library
                     }
                 }
