@@ -55,6 +55,35 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		961EAAA127B3A020002873DC /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				9672294927A3C75900D0F011 /* EmojiArtModel.swift */,
+				9672294B27A3D51B00D0F011 /* EmojiArtModel.Background.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		961EAAA227B3A026002873DC /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				9629DCF827A79B250082A929 /* PaletteStore.swift */,
+				9672295127A3DFBD00D0F011 /* EmojiArtDocument.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		961EAAA327B3A0A6002873DC /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				9672294F27A3DF9800D0F011 /* UtilityViews.swift */,
+				9672294D27A3DF8200D0F011 /* UtilityExtensions.swift */,
+				9629DD0427AB75F60082A929 /* Camera.swift */,
+				9629DD0627AB8C230082A929 /* PhotoLibrary.swift */,
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
 		9672292F27A3C31900D0F011 = {
 			isa = PBXGroup;
 			children = (
@@ -74,22 +103,14 @@
 		9672293A27A3C31900D0F011 /* EmojiArt */ = {
 			isa = PBXGroup;
 			children = (
-				9629DD0327AA69AB0082A929 /* Info.plist */,
-				9672293B27A3C31900D0F011 /* EmojiArtApp.swift */,
-				9629DD0427AB75F60082A929 /* Camera.swift */,
-				9629DD0627AB8C230082A929 /* PhotoLibrary.swift */,
-				9672295127A3DFBD00D0F011 /* EmojiArtDocument.swift */,
-				9672293D27A3C31900D0F011 /* EmojiArtDocumentView.swift */,
-				9672294B27A3D51B00D0F011 /* EmojiArtModel.Background.swift */,
-				9672294927A3C75900D0F011 /* EmojiArtModel.swift */,
-				9629DCFA27A7F78A0082A929 /* PaletteChooser.swift */,
-				9629DCFC27A83BF00082A929 /* PaletteEditor.swift */,
-				9629DCFE27A83C130082A929 /* PaletteManager.swift */,
-				9629DCF827A79B250082A929 /* PaletteStore.swift */,
-				9672294D27A3DF8200D0F011 /* UtilityExtensions.swift */,
-				9672294F27A3DF9800D0F011 /* UtilityViews.swift */,
 				9672293F27A3C31A00D0F011 /* Assets.xcassets */,
+				9672293B27A3C31900D0F011 /* EmojiArtApp.swift */,
+				9629DD0327AA69AB0082A929 /* Info.plist */,
+				961EAAA127B3A020002873DC /* Model */,
 				9672294127A3C31A00D0F011 /* Preview Content */,
+				961EAAA327B3A0A6002873DC /* Utils */,
+				96DC0E1627B219A900E72605 /* View */,
+				961EAAA227B3A026002873DC /* ViewModel */,
 			);
 			path = EmojiArt;
 			sourceTree = "<group>";
@@ -100,6 +121,17 @@
 				9672294227A3C31A00D0F011 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		96DC0E1627B219A900E72605 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				9629DCFE27A83C130082A929 /* PaletteManager.swift */,
+				9629DCFC27A83BF00082A929 /* PaletteEditor.swift */,
+				9672293D27A3C31900D0F011 /* EmojiArtDocumentView.swift */,
+				9629DCFA27A7F78A0082A929 /* PaletteChooser.swift */,
+			);
+			path = View;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
